@@ -101,7 +101,7 @@ class LoadMoreListView extends StatefulWidget {
   /// CustomScrollView
   const LoadMoreListView.customScrollView({
     Key? key,
-    required List<Widget> slivers,
+    required List<Widget> this.slivers,
     this.onLoadMore,
     this.onRefresh,
     this.hasMoreItem = true,
@@ -132,18 +132,17 @@ class LoadMoreListView extends StatefulWidget {
     //animation
     this.scrollToLoadMoreWidgetDuration = const Duration(milliseconds: 100),
     this.scrollToLoadMoreWidgetCurve = Curves.fastOutSlowIn,
-  })  : this.slivers = slivers,
-        this.itemExtent = null,
-        this.prototypeItem = null,
-        this.itemBuilder = null,
-        this.separatorBuilder = null,
-        this.semanticChildCount = null,
-        this.itemCount = 0,
-        this.addAutomaticKeepAlives = true,
-        this.addRepaintBoundaries = true,
-        this.addSemanticIndexes = true,
-        this.padding = null,
-        this.findChildIndexCallback = null,
+  })  : itemExtent = null,
+        prototypeItem = null,
+        itemBuilder = null,
+        separatorBuilder = null,
+        semanticChildCount = null,
+        itemCount = 0,
+        addAutomaticKeepAlives = true,
+        addRepaintBoundaries = true,
+        addSemanticIndexes = true,
+        padding = null,
+        findChildIndexCallback = null,
         super(key: key);
 
   ///Is there more data to load
@@ -287,34 +286,35 @@ class _LoadMoreListViewState extends State<LoadMoreListView> {
     //If there is no controller, assign one
     _scrollController = widget.controller ?? ScrollController();
     _isControllerCreateAtThisState = widget.controller == null;
+
+    _scrollController = widget.controller ?? ScrollController();
+    _isControllerCreateAtThisState = widget.controller == null;
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset >=
+              _scrollController.position.maxScrollExtent &&
+          !_scrollController.position.outOfRange) {
+        loadMore();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollEndNotification>(
-      onNotification: (ScrollEndNotification scrollEnd) {
-        final metrics = scrollEnd.metrics;
-        if (!metrics.atEdge) return true;
-        if (metrics.pixels == 0) return true;
-
-        loadMore();
-        return true;
-      },
-      child: widget.onRefresh == null
-          ? getListViewWidget()
-          : RefreshIndicator(
-              onRefresh: widget.onRefresh!,
-              backgroundColor: widget.refreshBackgroundColor,
-              displacement: widget.refreshDisplacement,
-              edgeOffset: widget.refreshEdgeOffset,
-              color: widget.refreshColor,
-              semanticsLabel: widget.refreshSemanticsLabel,
-              semanticsValue: widget.refreshSemanticsValue,
-              strokeWidth: widget.refreshStrokeWidth,
-              triggerMode: widget.refreshTriggerMode,
-              child: getListViewWidget(),
-            ),
-    );
+    return widget.onRefresh == null
+        ? getListViewWidget()
+        : RefreshIndicator(
+            onRefresh: widget.onRefresh!,
+            backgroundColor: widget.refreshBackgroundColor,
+            displacement: widget.refreshDisplacement,
+            edgeOffset: widget.refreshEdgeOffset,
+            color: widget.refreshColor,
+            semanticsLabel: widget.refreshSemanticsLabel,
+            semanticsValue: widget.refreshSemanticsValue,
+            strokeWidth: widget.refreshStrokeWidth,
+            triggerMode: widget.refreshTriggerMode,
+            child: getListViewWidget(),
+          );
   }
 
   @override
